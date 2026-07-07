@@ -1,0 +1,14 @@
+# .NET
+bin/
+obj/
+profiles.db
+profiles.db-shm
+profiles.db-wal
+
+# Node / Frontend
+node_modules/
+dist/
+.vite/
+
+# PostgreSQL (нативный)
+pgdata/
