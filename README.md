@@ -23,6 +23,7 @@ sqlite3 backend/profiles.db < backend/sql/sqlite/seed.sql
 ```
 
 Открыть: `http://localhost:5173`
+
 **Тестовые данные:** `user@example.com` / `password123`
 
 ## Запуск по шагам
