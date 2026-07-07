@@ -82,7 +82,7 @@ docker compose -f docker/docker-compose.yml down -v
 
 Если нативно:
 ```bash
-pg_ctl -D pgdata stop && rm -rf pgdata
+pg_ctl -D pgdata stop; rm -rf pgdata
 ```
 
 2. SQLite: достаточно удалить `backend/profiles.db`
