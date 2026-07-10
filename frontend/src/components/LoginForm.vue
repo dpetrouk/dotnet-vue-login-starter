@@ -34,7 +34,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { login } from '../api/auth'
@@ -52,7 +52,7 @@ async function handleLogin() {
     const result = await login(email.value, password.value)
     sessionStorage.setItem('user', JSON.stringify(result))
     router.push('/dashboard')
-  } catch (e: any) {
+  } catch (e) {
     error.value = e.response?.data?.error || 'Login failed'
   } finally {
     loading.value = false

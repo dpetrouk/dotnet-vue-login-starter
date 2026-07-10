@@ -23,13 +23,12 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import type { LoginResponse } from '../api/auth'
 
 const router = useRouter()
-const user = ref<LoginResponse | null>(null)
+const user = ref(null)
 
 onMounted(() => {
   const stored = sessionStorage.getItem('user')
