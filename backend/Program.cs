@@ -4,16 +4,17 @@ using backend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-
 var dbType = Enum.Parse<DatabaseType>(
     Environment.GetEnvironmentVariable("DB_TYPE")
     ?? builder.Configuration["DatabaseType"]
 );
 var conn = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING")
     ?? builder.Configuration.GetConnectionString(dbType.ToString());
+
 builder.Services.AddDbContext<AppDbContext>(DbContextFactory.Configure(dbType, conn));
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddScoped<AuthService>();
 
 // CORS для Vue dev server
 builder.Services.AddCors(options =>
@@ -25,8 +26,6 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod();
     });
 });
-
-builder.Services.AddScoped<AuthService>();
 
 var app = builder.Build();
 
