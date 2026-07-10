@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE UNIQUE INDEX IF NOT EXISTS "IX_users_Email" ON users ("Email");
 
--- Seed: test user (password: password123)
+-- test user (password: password123), hash generated with dotnet run --project scripts/hash-password -- "password123" 
 INSERT INTO users ("Email", "PasswordHash")
-SELECT 'user@example.com', '$2a$11$sAhnqV/kmez2U5qeh3oexuYYlHwLiJQM/3bqKgJQ8qmkB67B3ewOu'
+SELECT 'user@example.com', 'AQAAAAIAAYagAAAAEDJiv4TCfjhTrXw6+imdSbRu2h9aN6HJzf7ZsK3Hoq6CUrurFiZWjhDhW87Nbpj3dg=='
 WHERE NOT EXISTS (SELECT 1 FROM users WHERE "Email" = 'user@example.com');

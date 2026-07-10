@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using backend.Data;
 
@@ -20,7 +21,12 @@ public class AuthService
         var user = await _postgres.Users
             .FirstOrDefaultAsync(u => u.Email == email);
 
-        if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
+        if (user == null)
+            return null;
+
+        var hasher = new PasswordHasher<object>();
+        var result = hasher.VerifyHashedPassword(new object(), user.PasswordHash, password);
+        if (result == PasswordVerificationResult.Failed)
             return null;
 
         // 2. Достаём профиль из SQLite
