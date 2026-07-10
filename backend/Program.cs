@@ -7,21 +7,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-// PostgreSQL — основной контекст (пользователи)
-var pgConn = Environment.GetEnvironmentVariable("PG_CONNECTION_STRING")
-    ?? builder.Configuration.GetConnectionString("Postgres")
-    ?? "Host=localhost;Database=testdb;Username=postgres;Password=postgres";
-
-builder.Services.AddDbContext<PostgresDbContext>(options =>
-    options.UseNpgsql(pgConn));
-
-// SQLite — профили
-var sqliteConn = Environment.GetEnvironmentVariable("SQLITE_CONNECTION_STRING")
-    ?? builder.Configuration.GetConnectionString("Sqlite")
-    ?? "Data Source=profiles.db";
-
-builder.Services.AddDbContext<SqliteDbContext>(options =>
-    options.UseSqlite(sqliteConn));
+var dbType = Enum.Parse<DatabaseType>(
+    Environment.GetEnvironmentVariable("DB_TYPE")
+    ?? builder.Configuration["DatabaseType"]
+);
+var conn = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING")
+    ?? builder.Configuration.GetConnectionString(dbType.ToString());
+builder.Services.AddDbContext<AppDbContext>(DbContextFactory.Configure(dbType, conn));
 
 // CORS для Vue dev server
 builder.Services.AddCors(options =>

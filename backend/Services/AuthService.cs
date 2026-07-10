@@ -6,19 +6,17 @@ namespace backend.Services;
 
 public class AuthService
 {
-    private readonly PostgresDbContext _postgres;
-    private readonly SqliteDbContext _sqlite;
+    private readonly AppDbContext _appDbContext;
 
-    public AuthService(PostgresDbContext postgres, SqliteDbContext sqlite)
+    public AuthService(AppDbContext appDbContext)
     {
-        _postgres = postgres;
-        _sqlite = sqlite;
+        _appDbContext = appDbContext;
     }
 
     public async Task<UserProfileDto?> LoginAsync(string email, string password)
     {
-        // 1. Проверяем логин в PostgreSQL
-        var user = await _postgres.Users
+        // 1. Проверяем логин
+        var user = await _appDbContext.Users
             .FirstOrDefaultAsync(u => u.Email == email);
 
         if (user == null)
@@ -29,8 +27,8 @@ public class AuthService
         if (result == PasswordVerificationResult.Failed)
             return null;
 
-        // 2. Достаём профиль из SQLite
-        var profile = await _sqlite.UserProfiles
+        // 2. Достаём профиль
+        var profile = await _appDbContext.UserProfiles
             .FirstOrDefaultAsync(p => p.UserId == user.Id);
 
         return new UserProfileDto
