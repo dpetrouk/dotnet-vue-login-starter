@@ -13,7 +13,6 @@ var conn = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING")
 
 builder.Services.AddDbContext<AppDbContext>(DbContextFactory.Configure(dbType, conn));
 builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<AuthService>();
 
 // CORS для Vue dev server
