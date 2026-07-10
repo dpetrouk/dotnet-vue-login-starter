@@ -18,8 +18,8 @@
 
 После первого запуска заполнить тестовыми данными:
 ```bash
-docker exec -i test-postgres psql -U postgres -d testdb < backend/sql/postgres/seed.sql
-sqlite3 backend/profiles.db < backend/sql/sqlite/seed.sql
+docker exec -i test-postgres psql -U postgres -d testdb < backend/sql/postgres.sql
+sqlite3 backend/profiles.db < backend/sql/sqlite.sql
 ```
 
 Открыть: `http://localhost:5173`
@@ -58,17 +58,17 @@ cd frontend && npm install && npm run dev
 
 Если в docker-контейнере:
 ```bash
-docker exec -i test-postgres psql -U postgres -d testdb < backend/sql/postgres/seed.sql
+docker exec -i test-postgres psql -U postgres -d testdb < backend/sql/postgres.sql
 ```
 
 Если нативно:
 ```bash
-psql -h localhost -U postgres -d testdb < backend/sql/postgres/seed.sql
+psql -h localhost -U postgres -d testdb < backend/sql/postgres.sql
 ```
 
 4.2 SQLite:
 ```
-sqlite3 backend/profiles.db < backend/sql/sqlite/seed.sql
+sqlite3 backend/profiles.db < backend/sql/sqlite.sql
 ```
 
 ## Остановка и очистка

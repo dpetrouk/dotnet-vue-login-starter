@@ -41,19 +41,4 @@ var app = builder.Build();
 app.UseCors();
 app.MapControllers();
 
-// EnsureCreated — создаёт таблицы при первом запуске (пустые)
-// Сид-данные добавляются отдельными SQL-скриптами:
-//   PostgreSQL: sql/postgres/seed.sql
-//   SQLite:     sql/sqlite/seed.sql
-using (var scope = app.Services.CreateScope())
-{
-    var pg = scope.ServiceProvider.GetRequiredService<PostgresDbContext>();
-    pg.Database.EnsureCreated();
-}
-using (var scope = app.Services.CreateScope())
-{
-    var sqlite = scope.ServiceProvider.GetRequiredService<SqliteDbContext>();
-    sqlite.Database.EnsureCreated();
-}
-
 app.Run("http://localhost:5000");
