@@ -12,3 +12,7 @@ dist/
 
 # PostgreSQL (нативный)
 pgdata/
+
+# nginx
+nginx/logs/*
+!nginx/logs/.gitkeep

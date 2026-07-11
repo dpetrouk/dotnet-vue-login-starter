@@ -5,5 +5,6 @@ pkgs.mkShell {
     dotnetCorePackages.sdk_9_0
     sqlite
     postgresql_17
+    nginx
   ];
 }
