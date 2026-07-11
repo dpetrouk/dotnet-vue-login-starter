@@ -29,7 +29,7 @@ var conn = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING")
 var jwtSection = builder.Configuration.GetSection("Jwt");
 var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET")
     ?? jwtSection["Secret"]
-    ?? throw new InvalidOperationException("Jwt:Secret is not configured. Set JWT_SECRET env var or add Jwt:Secret in appsettings.Development.json.");
+    ?? throw new InvalidOperationException("Jwt:Secret is not configured. Set JWT_SECRET env var or add Jwt:Secret in appsettings.json.");
 
 builder.Services.Configure<JwtOptions>(jwtSection);
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
