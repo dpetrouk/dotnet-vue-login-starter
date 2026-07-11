@@ -1,88 +1,49 @@
-# .NET 9 + Vue 3 — Login Demo (PostgreSQL + SQLite)
+# .NET 9 + Vue 3 — Login Demo 
 
-Проект — страница логина на Vue 3, которая отправляет email и пароль на C# бэкенд. Бэкенд проверяет пользователя в PostgreSQL, а после успешного входа достаёт ФИО и адрес из SQLite и показывает их на фронтенде.
+Вход в аккаунт через форму логина и отображение данных профиля. 
+
+Бэкенд поддерживает выбор между двумя СУБД (PostgreSQL, Sqlite). 
+
+Есть несколько API точек - `api/auth` и `api/profile`.
 
 ## Используется
 
 - **Бэкенд:** ASP.NET Core 9 на C#
-- **Фронтенд:** Vue 3 + TypeScript
-- **Базы данных:** PostgreSQL (пользователи) + SQLite (профили)
-
-## Быстрый старт
-
-```bash
-./start-dev.sh
-```
-
-Запускает PostgreSQL в Docker, бэкенд и фронтенд.
-
-После первого запуска заполнить тестовыми данными:
-```bash
-docker exec -i test-postgres psql -U postgres -d testdb < backend/sql/postgres.sql
-sqlite3 backend/profiles.db < backend/sql/sqlite.sql
-```
-
-Открыть: `http://localhost:5173`
-
-**Тестовые данные:** `user@example.com` / `password123`
+- **Фронтенд:** Vue 3
+- **Базы данных:** PostgreSQL, SQLite
 
 ## Запуск по шагам
 
-1. PostgreSQL
+**0.** Если используется `shell.nix`, то выполнить `nix-shell`. Иначе в системе должны быть установлены зависимости проекта, которые там описаны.
 
-Если в docker-контейнере:
-```bash
-docker compose -f docker/docker-compose.yml up -d
-```
+**1.** Подготовка БД
 
-Если нативно:
-```bash
-initdb -D pgdata --username=postgres --pwfile=<(echo postgres) -c unix_socket_directories=''
-pg_ctl -D pgdata -l pgdata/logfile start
-createdb -h localhost -U postgres testdb
-```
+Для выбранной СУБД применить соответствующий sql скрипт из `backend/sql/`.
 
-2. Бэкенд
+Для удобства работы с Sqlite есть скрипты в `scripts/sqlite/`. 
+
+Для запуска и работы с сервером Postgres есть:
+- нативный вариант (происходит в папке проекта, не оставляет следов в системе). Нужные скрипты в `scripts/postgres/`.
+- вариант в docker-контейнере. Нужные скрипты в `scripts/postgres/docker/`.
+
+**2.** Бэкенд (в отдельном терминале)
+
 ```bash
 cd backend && dotnet run
 ```
+По умолчанию бэкенд выбирает Sqlite. Для выбора другой СУБД можно использовать переменную окружения `DB_TYPE` (при неправильном выборе покажет доступные варианты).
 
-3. Фронтенд (в отдельном терминале)
+Также можно указать `DB_CONNECTION_STRING` и `JWT_SECRET` и так заменить значения по умолчанию из `backend/appsettings.json`.
+
+**3.** Фронтенд (в отдельном терминале)
+
 ```bash
-cd frontend && npm install && npm run dev
+cd frontend && npm install && npm run build && cd ../nginx && ./run.sh
 ```
 
-4. Заполнить тестовыми данными (требует прежде запуска бэкенда - там создаются таблицы)
+Или скриптом: `./scripts/run_actual_frontend_build.sh`
 
-4.1 PostgreSQL:
+**4.** Открыть http://localhost:8080
 
-Если в docker-контейнере:
-```bash
-docker exec -i test-postgres psql -U postgres -d testdb < backend/sql/postgres.sql
-```
+Тестовые данные: `user@example.com` / `password123`
 
-Если нативно:
-```bash
-psql -h localhost -U postgres -d testdb < backend/sql/postgres.sql
-```
-
-4.2 SQLite:
-```
-sqlite3 backend/profiles.db < backend/sql/sqlite.sql
-```
-
-## Остановка и очистка
-
-1. PostgreSQL:
-Если в docker-контейнере:
-```bash
-docker compose -f docker/docker-compose.yml down -v
-# Без флага -v - только остановка. С флагом - очистка.
-```
-
-Если нативно:
-```bash
-pg_ctl -D pgdata stop; rm -rf pgdata
-```
-
-2. SQLite: достаточно удалить `backend/profiles.db`
