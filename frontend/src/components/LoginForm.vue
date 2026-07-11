@@ -35,12 +35,18 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth } from '../composables/useAuth'
 
 const router = useRouter()
-const { loginUser } = useAuth()
+const { loginUser, getToken } = useAuth()
+
+onMounted(() => {
+  if (getToken()) {
+    router.push('/dashboard')
+  }
+})
 const email = ref('')
 const password = ref('')
 const error = ref('')
