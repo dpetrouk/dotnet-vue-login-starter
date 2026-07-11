@@ -43,6 +43,13 @@ cd frontend && npm install && npm run build && cd ../nginx && ./run.sh
 
 Или скриптом: `./scripts/run_actual_frontend_build.sh`
 
+Для разработки:
+
+```bash
+cd frontend && npm install && npm run dev
+```
+
+
 **4.** Открыть http://localhost:8080
 
 Тестовые данные: `user@example.com` / `password123`
