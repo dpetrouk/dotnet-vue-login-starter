@@ -1,5 +1,10 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using backend.Data;
 
 namespace backend.Services;
@@ -7,15 +12,35 @@ namespace backend.Services;
 public class AuthService
 {
     private readonly AppDbContext _appDbContext;
+    private readonly IOptions<JwtOptions> _jwtOptions;
 
-    public AuthService(AppDbContext appDbContext)
+    public AuthService(AppDbContext appDbContext, IOptions<JwtOptions> jwtOptions)
     {
         _appDbContext = appDbContext;
+        _jwtOptions = jwtOptions;
     }
 
-    public async Task<UserProfileDto?> LoginAsync(string email, string password)
+    public string GenerateToken(int userId)
     {
-        // 1. Проверяем логин
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.Value.Secret));
+        var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+        var claims = new[]
+        {
+            new Claim(ClaimTypes.NameIdentifier, userId.ToString())
+        };
+
+        var token = new JwtSecurityToken(
+            claims: claims,
+            expires: DateTime.UtcNow.AddHours(1),
+            signingCredentials: credentials
+        );
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    public async Task<int?> LoginAsync(string email, string password)
+    {
         var user = await _appDbContext.Users
             .FirstOrDefaultAsync(u => u.Email == email);
 
@@ -27,40 +52,11 @@ public class AuthService
         if (result == PasswordVerificationResult.Failed)
             return null;
 
-        // 2. Достаём профиль
-        var profile = await _appDbContext.UserProfiles
-            .FirstOrDefaultAsync(p => p.UserId == user.Id);
-
-        return new UserProfileDto
-        {
-            UserId = user.Id,
-            Email = user.Email,
-            FullName = profile?.FullName ?? "—",
-            Profile = profile != null
-                ? new ProfileDto
-                {
-                    City = profile.City,
-                    Street = profile.Street,
-                    Building = profile.Building,
-                    ZipCode = profile.ZipCode
-                }
-                : null
-        };
+        return user.Id;
     }
 }
 
-public record UserProfileDto
+public class JwtOptions
 {
-    public int UserId { get; init; }
-    public string Email { get; init; } = string.Empty;
-    public string FullName { get; init; } = string.Empty;
-    public ProfileDto? Profile { get; init; }
-}
-
-public record ProfileDto
-{
-    public string City { get; init; } = string.Empty;
-    public string Street { get; init; } = string.Empty;
-    public string Building { get; init; } = string.Empty;
-    public string ZipCode { get; init; } = string.Empty;
+    public string Secret { get; set; } = string.Empty;
 }

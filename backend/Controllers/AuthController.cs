@@ -17,12 +17,13 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
-        var result = await _authService.LoginAsync(request.Email, request.Password);
+        var userId = await _authService.LoginAsync(request.Email, request.Password);
 
-        if (result == null)
+        if (userId == null)
             return Unauthorized(new { error = "Invalid email or password" });
 
-        return Ok(result);
+        var token = _authService.GenerateToken(userId.Value);
+        return Ok(new { token });
     }
 }
 

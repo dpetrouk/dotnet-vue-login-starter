@@ -26,19 +26,20 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAuth } from '../composables/useAuth'
+import { getProfile } from '../api/profile'
 
 const router = useRouter()
+const { getToken, logout: clearToken } = useAuth()
 const user = ref(null)
 
-onMounted(() => {
-  const stored = sessionStorage.getItem('user')
-  if (stored) {
-    user.value = JSON.parse(stored)
-  }
+onMounted(async () => {
+  if (!getToken()) return
+  user.value = await getProfile()
 })
 
 function logout() {
-  sessionStorage.removeItem('user')
+  clearToken()
   router.push('/')
 }
 </script>

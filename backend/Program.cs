@@ -1,4 +1,7 @@
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using backend.Data;
 using backend.Services;
 
@@ -23,9 +26,28 @@ var conn = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING")
         $"Connection string not found for '{dbType}'. Set DB_CONNECTION_STRING env var or add a matching key in ConnectionStrings."
     );
 
+var jwtSection = builder.Configuration.GetSection("Jwt");
+var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET")
+    ?? jwtSection["Secret"]
+    ?? throw new InvalidOperationException("Jwt:Secret is not configured. Set JWT_SECRET env var or add Jwt:Secret in appsettings.Development.json.");
+
+builder.Services.Configure<JwtOptions>(jwtSection);
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret))
+        };
+    });
+builder.Services.AddAuthorization();
 builder.Services.AddDbContext<AppDbContext>(DbContextFactory.Configure(dbType, conn));
 builder.Services.AddControllers();
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<ProfileService>();
 
 // CORS для Vue dev server
 builder.Services.AddCors(options =>
@@ -40,6 +62,8 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+app.UseAuthentication();
+app.UseAuthorization();
 app.UseCors();
 app.MapControllers();
 

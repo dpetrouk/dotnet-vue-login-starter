@@ -37,9 +37,10 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { login } from '../api/auth'
+import { useAuth } from '../composables/useAuth'
 
 const router = useRouter()
+const { loginUser } = useAuth()
 const email = ref('')
 const password = ref('')
 const error = ref('')
@@ -49,8 +50,7 @@ async function handleLogin() {
   error.value = ''
   loading.value = true
   try {
-    const result = await login(email.value, password.value)
-    sessionStorage.setItem('user', JSON.stringify(result))
+    await loginUser(email.value, password.value)
     router.push('/dashboard')
   } catch (e) {
     error.value = e.response?.data?.error || 'Login failed'
